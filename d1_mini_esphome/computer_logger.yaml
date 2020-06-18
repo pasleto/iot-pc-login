@@ -1,0 +1,67 @@
+esphome:
+  name: computer_logger
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret esphome_wifi
+  password: !secret esphome_wifi_password
+  manual_ip:
+    static_ip: <ip-address>
+    gateway: <gateway-ip>
+    subnet: <subnet-mask>
+
+api:
+
+web_server:
+  port: 80
+
+logger:
+
+ota:
+  password: !secret esphome_ota_password
+    
+binary_sensor:
+  - platform: status
+    name: "Computer Logger Status"
+      
+switch:
+  - platform: restart
+    name: "Computer Logger REBOOT"
+  - platform: gpio
+    id: computer_logger_login
+    pin: D1
+    restore_mode: ALWAYS_OFF
+  - platform: gpio
+    id: computer_logger_logout
+    pin: D2
+    restore_mode: ALWAYS_OFF
+  - platform: template
+    name: 'Computer Logger - Login'
+    icon: 'mdi:lock-open-outline'
+    turn_on_action:
+      - switch.turn_on: computer_logger_login
+      - delay: 500ms
+      - switch.turn_off: computer_logger_login
+  - platform: template
+    name: 'Computer Logger - Logout'
+    icon: 'mdi:lock-outline'
+    turn_on_action:
+      - switch.turn_on: computer_logger_logout
+      - delay: 500ms
+      - switch.turn_off: computer_logger_logout
+      
+sensor:
+  - platform: uptime
+    name: "Computer Logger Uptime"
+  - platform: wifi_signal
+    name: "Computer Logger WiFi Signal"
+    update_interval: 60s
+    
+text_sensor:
+  - platform: wifi_info
+    ip_address:
+      name: "Computer Logger IP Address"
+      icon: mdi:ip
+  - platform: version
+    name: "Computer Logger Firmware Version"
